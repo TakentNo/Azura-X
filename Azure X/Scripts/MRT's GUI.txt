@@ -1,0 +1,235 @@
+
+
+-- Instances:
+
+local GUI = Instance.new("ScreenGui")
+local MRTsGUI = Instance.new("Frame")
+local TextLabel = Instance.new("TextLabel")
+local Fly = Instance.new("TextButton")
+local Noclip = Instance.new("TextButton")
+local Speed = Instance.new("TextButton")
+local Admin = Instance.new("TextButton")
+local openmain = Instance.new("Frame")
+local open = Instance.new("TextLabel")
+
+--Properties:
+
+GUI.Name = "GUI"
+GUI.Parent = game.CoreGui
+GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+MRTsGUI.Name = "MRT's GUI"
+MRTsGUI.Parent = GUI
+MRTsGUI.BackgroundColor3 = Color3.fromRGB(56, 0, 85)
+MRTsGUI.Position = UDim2.new(0.144851655, 0, 0.260869563, 0)
+MRTsGUI.Size = UDim2.new(0, 242, 0, 318)
+MRTsGUI.Visible = true
+MRTsGUI.Active = true
+MRTsGUI.Draggable = true
+
+TextLabel.Parent = MRTsGUI
+TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.BackgroundTransparency = 1.000
+TextLabel.Position = UDim2.new(-0.000187519167, 0, -0.00128312979, 0)
+TextLabel.Size = UDim2.new(0, 242, 0, 41)
+TextLabel.Font = Enum.Font.Nunito
+TextLabel.Text = "MRT's GUI"
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.TextScaled = true
+TextLabel.TextSize = 14.000
+TextLabel.TextWrapped = true
+
+Fly.Name = "Fly"
+Fly.Parent = MRTsGUI
+Fly.BackgroundColor3 = Color3.fromRGB(70, 0, 106)
+Fly.Position = UDim2.new(0.0867768601, 0, 0.216981128, 0)
+Fly.Size = UDim2.new(0, 200, 0, 39)
+Fly.Font = Enum.Font.SourceSansBold
+Fly.Text = "Fly"
+Fly.TextColor3 = Color3.fromRGB(255, 255, 255)
+Fly.TextScaled = true
+Fly.TextSize = 14.000
+Fly.TextWrapped = true
+Fly.MouseButton1Down:connect(function()
+	repeat wait() 
+	until game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:findFirstChild("Head") and game.Players.LocalPlayer.Character:findFirstChild("Humanoid") 
+	local mouse = game.Players.LocalPlayer:GetMouse() 
+	repeat wait() until mouse
+	local plr = game.Players.LocalPlayer 
+	local torso = plr.Character.Head 
+	local flying = false
+	local deb = true 
+	local ctrl = {f = 0, b = 0, l = 0, r = 0} 
+	local lastctrl = {f = 0, b = 0, l = 0, r = 0} 
+	local maxspeed = 50 
+	local speed = 0 
+
+	function Fly() 
+		local bg = Instance.new("BodyGyro", torso) 
+		bg.P = 9e4 
+		bg.maxTorque = Vector3.new(9e9, 9e9, 9e9) 
+		bg.cframe = torso.CFrame 
+		local bv = Instance.new("BodyVelocity", torso) 
+		bv.velocity = Vector3.new(0,0.1,0) 
+		bv.maxForce = Vector3.new(9e9, 9e9, 9e9) 
+		repeat wait() 
+			plr.Character.Humanoid.PlatformStand = true 
+			if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then 
+				speed = speed+.5+(speed/maxspeed) 
+				if speed > maxspeed then 
+					speed = maxspeed 
+				end 
+			elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speed ~= 0 then 
+				speed = speed-1 
+				if speed < 0 then 
+					speed = 0 
+				end 
+			end 
+			if (ctrl.l + ctrl.r) ~= 0 or (ctrl.f + ctrl.b) ~= 0 then 
+				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed 
+				lastctrl = {f = ctrl.f, b = ctrl.b, l = ctrl.l, r = ctrl.r} 
+			elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 and speed ~= 0 then 
+				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f+lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l+lastctrl.r,(lastctrl.f+lastctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed 
+			else 
+				bv.velocity = Vector3.new(0,0.1,0) 
+			end 
+			bg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speed/maxspeed),0,0) 
+		until not flying 
+		ctrl = {f = 0, b = 0, l = 0, r = 0} 
+		lastctrl = {f = 0, b = 0, l = 0, r = 0} 
+		speed = 0 
+		bg:Destroy() 
+		bv:Destroy() 
+		plr.Character.Humanoid.PlatformStand = false 
+	end 
+	mouse.KeyDown:connect(function(key) 
+		if key:lower() == "e" then 
+			if flying then flying = false 
+			else 
+				flying = true 
+				Fly() 
+			end 
+		elseif key:lower() == "w" then 
+			ctrl.f = 1 
+		elseif key:lower() == "s" then 
+			ctrl.b = -1 
+		elseif key:lower() == "a" then 
+			ctrl.l = -1 
+		elseif key:lower() == "d" then 
+			ctrl.r = 1 
+		end 
+	end) 
+	mouse.KeyUp:connect(function(key) 
+		if key:lower() == "w" then 
+			ctrl.f = 0 
+		elseif key:lower() == "s" then 
+			ctrl.b = 0 
+		elseif key:lower() == "a" then 
+			ctrl.l = 0 
+		elseif key:lower() == "d" then 
+			ctrl.r = 0 
+		end 
+	end)
+	Fly()
+end)
+
+Noclip.Name = "Noclip"
+Noclip.Parent = MRTsGUI
+Noclip.BackgroundColor3 = Color3.fromRGB(70, 0, 106)
+Noclip.Position = UDim2.new(0.0867768601, 0, 0.386792451, 0)
+Noclip.Size = UDim2.new(0, 200, 0, 39)
+Noclip.Font = Enum.Font.SourceSansBold
+Noclip.Text = "Noclip"
+Noclip.TextColor3 = Color3.fromRGB(255, 255, 255)
+Noclip.TextScaled = true
+Noclip.TextSize = 14.000
+Noclip.TextWrapped = true
+Noclip.MouseButton1Down:connect(function()
+	--[[
+    Made by PresidentIvan!
+--]]
+
+	local player = game.Players.LocalPlayer
+	local mouse = player:GetMouse()
+	local runservice = game:GetService("RunService")
+	local noclip = false
+
+	local msg = Instance.new("Message", player.PlayerGui)
+	msg.Text = "Noclip Script by PresidentIvan! Press on 'e' to noclip & 't' to destroy this message!"
+
+	runservice.Stepped:Connect(function()
+		if noclip then
+			player.Character.Humanoid:ChangeState(11)
+		end
+	end)
+
+	mouse.KeyDown:Connect(function(key)
+		if key == "t" then
+			msg:Destroy()
+		end
+	end)
+
+	mouse.KeyDown:Connect(function(key)
+		if key == "e" then
+			noclip = true
+			player.Character.Humanoid:ChangeState(11)
+		end
+	end)
+end)
+
+Speed.Name = "Speed"
+Speed.Parent = MRTsGUI
+Speed.BackgroundColor3 = Color3.fromRGB(70, 0, 106)
+Speed.Position = UDim2.new(0.0867768601, 0, 0.562893093, 0)
+Speed.Size = UDim2.new(0, 200, 0, 39)
+Speed.Font = Enum.Font.SourceSansBold
+Speed.Text = "Speed"
+Speed.TextColor3 = Color3.fromRGB(255, 255, 255)
+Speed.TextScaled = true
+Speed.TextSize = 14.000
+Speed.TextWrapped = true
+Speed.MouseButton1Down:connect(function()
+	game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
+end)
+
+Admin.Name = "Admin"
+Admin.Parent = MRTsGUI
+Admin.BackgroundColor3 = Color3.fromRGB(70, 0, 106)
+Admin.Position = UDim2.new(0.0867768601, 0, 0.735849082, 0)
+Admin.Size = UDim2.new(0, 200, 0, 39)
+Admin.Font = Enum.Font.SourceSansBold
+Admin.Text = "Admin"
+Admin.TextColor3 = Color3.fromRGB(255, 255, 255)
+Admin.TextScaled = true
+Admin.TextSize = 14.000
+Admin.TextWrapped = true
+Admin.MouseButton1Down:connect(function()
+	loadstring(game:HttpGet(('https://pastebin.com/raw/pyzjWNhk'),true))()
+end)
+
+openmain.Name = "openmain"
+openmain.Parent = GUI
+openmain.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+openmain.BorderSizePixel = 0
+openmain.Position = UDim2.new(0, 0, 0.441471577, 0)
+openmain.Size = UDim2.new(0, 100, 0, 33)
+openmain.Active = true
+openmain.Draggable = false
+
+open.Name = "open"
+open.Parent = openmain
+open.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+open.BackgroundTransparency = 1.000
+open.BorderColor3 = Color3.fromRGB(27, 42, 53)
+open.Size = UDim2.new(0, 100, 0, 33)
+open.Font = Enum.Font.SourceSansBold
+open.Text = "OPEN"
+open.TextColor3 = Color3.fromRGB(0, 0, 0)
+open.TextScaled = true
+open.TextSize = 14.000
+open.TextWrapped = true
+open.Visible = false
+open.MouseButton1Down:connect(function()
+	openmain.Visible = false
+	MRTsGUI.Visible = true
+end)
